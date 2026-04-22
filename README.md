@@ -123,9 +123,9 @@ See `event_graph/README.md` for detailed instructions.
 If you find this work useful, please consider citing:
 
 ```bibtex
-@misc{wang2026egoselfmemorypersonalizedegocentric,
+@misc{wang2026egoself,
       title={EgoSelf: From Memory to Personalized Egocentric Assistant},
-      author={Yanshuo Wang and Yuan Xu and Xuesong Li and Jie Hong and Yizhou Wang and Chang Wen Chen and Wentao Zhu},
+      author={Yanshuo Wang, Yuan Xu, Xuesong Li, Jie Hong, Yizhou Wang, Chang Wen Chen, Wentao Zhu},
       year={2026},
       eprint={2604.19564},
       archivePrefix={arXiv},
