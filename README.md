@@ -125,7 +125,7 @@ If you find this work useful, please consider citing:
 ```bibtex
 @misc{wang2026egoself,
       title={EgoSelf: From Memory to Personalized Egocentric Assistant},
-      author={Yanshuo Wang, Yuan Xu, Xuesong Li, Jie Hong, Yizhou Wang, Chang Wen Chen, Wentao Zhu},
+      author={Wang, Yanshuo and Xu, Yuan and Li, Xuesong and Hong, Jie and Wang, Yizhou and Chen, Chang Wen and Zhu, Wentao},
       year={2026},
       eprint={2604.19564},
       archivePrefix={arXiv},
