@@ -94,7 +94,7 @@ python event_graph/scripts/initialize_neo4j.py
 **2. Build graph from memory event JSONs**
 ```bash
 python event_graph/scripts/build_graph_from_json.py \
-  --input memory/data/events/DAY1
+  --memory/data/events/DAY1
 ```
 
 See `event_graph/README.md` for detailed instructions.
