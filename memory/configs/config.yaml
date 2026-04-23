@@ -1,0 +1,417 @@
+# ============================================================================
+# Pipeline configuration
+# ============================================================================
+pipeline:
+  # Steps to run, in order. Available: "asr", "caption", "entity", "voiceprint", "relation"
+  steps: ["asr", "caption", "entity", "voiceprint", "relation"]
+
+  # Temporary working directory
+  temp_dir: "memory/data/temp"
+
+# ============================================================================
+# Path configuration
+# ============================================================================
+# Paths are resolved relative to the working directory at run time
+# (default: invoke from the egoself/ root). Set data_root to your raw video
+# directory.
+paths:
+  models_root: "memory/models"
+  data_root: "/path/to/your/videos"
+  output_root: "memory/data"
+  prompts_dir: "memory/configs/prompts"
+  events_dir: "${paths.output_root}/events"
+  entities_dir: "${paths.output_root}/entities"
+  features_dir: "${paths.output_root}/features"
+  index_dir: "${paths.output_root}/index"
+
+api:
+  # Each model referenced below (caption.model, asr.model, relation.model, ...)
+  # must have a matching entry here with its base_url and api_key.
+  # Duplicate this block for every model you use.
+  gpt-4o:
+    base_url: "https://api.openai.com/v1/"
+    api_key: "YOUR_OPENAI_API_KEY_HERE"
+
+# ============================================================================
+# Caption generation
+# ============================================================================
+caption:
+  # Backend client: "gpt4o", "gpt5", or "gemini"
+  client: "gemini"
+  use_text_embedding_client: false
+
+  # Interaction-target filter
+  min_interaction_duration: 4.0  # seconds; targets shorter than this are dropped
+
+  text_embedding_client:
+    model: "text-embedding-3-large"
+    max_retries: 3
+    timeout: 30
+    kwargs: {}
+
+  # GPT-4o (frame-extraction mode)
+  gpt4o:
+    model: "gpt-4o"
+    max_retries: 3
+    timeout: 300
+    # Video sampling
+    sample_fps: 1.0            # frames per second
+    max_frames: 32             # max frames sent to the model
+    # Image preprocessing
+    resize_max_size: 512       # longest side
+    image_format: "JPEG"
+    image_quality: 85
+    # Extra kwargs forwarded to the API
+    kwargs: {}
+
+  # GPT-5 (direct video input)
+  gpt5:
+    model: "gpt-5"
+    max_retries: 3
+    timeout: 300
+    max_tokens: 10000
+    # Video preprocessing
+    sample_fps: 5.0            # downsample input fps
+    video_max_size: 640        # longest side
+    kwargs: {}
+
+  # Gemini (direct video input)
+  gemini:
+    model: "gemini-2.5-pro"
+    max_retries: 3
+    timeout: 120
+    max_tokens: 10000
+    # Video preprocessing
+    sample_fps: 5.0            # downsample input fps
+    video_max_size: 640        # longest side
+    kwargs: {}
+
+voice:
+  # ASR (speech recognition)
+  asr:
+    # Backend: "gpt4o", "gemini", or "whisperx"
+    client: "gpt4o"
+
+    # Shared filters
+    min_segment_duration: 0.5    # seconds; drop shorter segments
+    min_word_count: 2          # min word count (EN) / character count (ZH)
+
+    # GPT-4o transcribe (whisper-1 supports verbose_json)
+    gpt4o:
+      model: "whisper-1"
+      max_retries: 3
+      timeout: 300
+      # Image params (required by GPT4oClient even though ASR doesn't use them)
+      resize_max_size: 512
+      image_format: "JPEG"
+      image_quality: 85
+      sample_fps: 1.0
+      # Extra kwargs forwarded to transcribe API
+      kwargs:
+        response_format: "verbose_json"  # whisper-1 supports verbose_json
+        timestamp_granularities: ["segment"]
+
+    # Gemini ASR
+    gemini:
+      model: "gemini-2.5-pro"
+      max_retries: 3
+      timeout: 600  # bumped to 10 min to handle large audio uploads
+      temperature: 0.0
+      max_tokens: 10000
+      kwargs: {}
+
+    # WhisperX (local)
+    whisperx:
+      # ========== Basic ==========
+      # Model: tiny, base, small, medium, large-v2, large-v3
+      # tiny: ~39M, base: ~74M, small: ~244M, medium: ~769M, large: ~1550M
+      model: "large-v2"
+
+      # Device
+      device: "cuda"  # or "cpu"
+      compute_type: "float16"  # float16 (GPU, recommended), int8 (low-mem), float32 (CPU)
+
+      # Language
+      language: null  # auto-detect, or "zh" / "en" / "ja" ...
+
+      # ========== Inference ==========
+      batch_size: 16  # lower to reduce VRAM (default 16)
+
+      # Whisper transcription params
+      kwargs:
+        temperature: 0.0  # 0.0 = greedy decoding
+        compression_ratio_threshold: 2.4  # above this = low-quality transcript
+        logprob_threshold: -1.0
+        no_speech_threshold: 0.6
+        condition_on_previous_text: true  # condition on prior context
+        initial_prompt: null  # optional priming text
+
+      # ========== Word-level alignment ==========
+      enable_alignment: true
+
+      align:
+        return_char_alignments: false  # enable for languages like Chinese
+        interpolate_method: "linear"  # linear or nearest
+
+      # ========== Speaker diarization ==========
+      enable_diarization: false
+
+      # Hugging Face token (required to download pyannote models)
+      # Get one at https://huggingface.co/settings/tokens
+      # and accept the license at pyannote/speaker-diarization-3.1
+      hf_token: YOUR_HF_TOKEN_HERE
+
+      # Speaker count limits
+      min_speakers: null  # null = auto
+      max_speakers: null  # null = auto
+
+      # ========== Performance ==========
+      # VAD thresholds
+      vad_onset: 0.500
+      vad_offset: 0.363
+
+      # Chunk audio for memory savings
+      chunk_size: 30  # seconds; 30s recommended for long files
+
+      # ========== Output ==========
+      print_progress: true
+
+      # ========== Model paths ==========
+      # Local model paths (uses the shared models_root variable).
+      # Set to null to download from Hugging Face on demand.
+      whisper_model_path: "${paths.models_root}/voice/faster-whisper-large-v2"
+      diarization_model_path: "${paths.models_root}/voice/speaker-diarization-3.1"
+      download_root: "${paths.models_root}/voice"
+
+      # ========== Misc ==========
+      threads: 4  # CPU threads (CPU mode only)
+
+      max_retries: 3
+      timeout: 600  # seconds
+
+  # Voiceprint (speaker recognition)
+  voiceprint:
+    # Active model checkpoint (uses shared models_root)
+    model_path: "${paths.models_root}/voice/pretrained_eres2netv2.ckpt"
+
+    # General
+    embedding_size: 192
+    fbank_dim: 80
+    sample_rate: 16000
+    device: "cuda"
+
+    # Database management
+    reset_database: true  # reset the voice DB on each run (default false to keep history)
+
+    # Per-checkpoint architecture parameters
+    model_configs:
+      # Default: pretrained_eres2netv2.ckpt
+      "${paths.models_root}/voice/pretrained_eres2netv2.ckpt":
+        baseWidth: 26   # base channel width
+        scale: 2        # Res2Net scale (number of branches)
+        expansion: 2    # channel expansion factor
+
+      # Variant: pretrained_eres2netv2w24s4ep4.ckpt (w24s4ep4 config)
+      "${paths.models_root}/voice/pretrained_eres2netv2w24s4ep4.ckpt":
+        baseWidth: 24   # parsed from filename: w24
+        scale: 4        # parsed from filename: s4
+        expansion: 4    # parsed from filename: ep4
+
+    # Segment filter
+    min_segment_duration: 2.0  # seconds; drop shorter segments
+
+    # Matching parameters
+    match_threshold: 0.5      # weighted similarity must be >= this to be the same speaker
+    top_k: 5                   # average over top-K nearest history features
+    max_history_features: 20    # max embeddings stored per voice in the global DB
+
+    # EMA update
+    ema_alpha: 0.7            # weight of new feature (0.7 = 70% new, 30% old)
+    ema_update_threshold: 0.8  # only update global EMA when match_score >= this
+
+    # History feature filter
+    min_history_duration: 1.5   # min duration (seconds) for a history feature
+    min_history_match_score: 0.50  # min match score for a history feature
+
+    # Debug
+    debug_save_segments: true       # save split audio segments for inspection
+    debug_save_dir: "${paths.output_root}/voices/seg"
+
+    # Output paths
+    database_path: "${paths.output_root}/voices/voiceprint/database.json"
+    embedding_dir: "${paths.output_root}/voices/embedding"
+    asr_dir: "${paths.output_root}/voices/asr"
+    merged_wav_dir: "${paths.output_root}/voices/merged"
+
+# ============================================================================
+# Event-relation reasoning
+# ============================================================================
+relation:
+  # Backend client: "gemini" (supports gemini-2.5-pro, gemini-2.0-flash, ...)
+  client: "gemini"
+
+  # Reasoning window
+  window_size: 5          # look back N prior events
+  time_threshold: 60      # temporal-relation threshold (seconds)
+
+  # Gemini client
+  gemini:
+    model: "gemini-2.5-flash"  # e.g. gemini-2.5-pro, gemini-2.0-flash
+    max_retries: 3
+    timeout: 120
+    sample_fps: 5.0            # downsample input fps
+    video_max_size: 640        # longest side
+    max_tokens: 10000
+    kwargs: {}
+
+prompts:
+  event_annotation: "event_annotation.py"
+  voice_diarization: "voice_diarization.py"
+  event_relation: "event_relation.py"
+
+# ============================================================================
+# Entity tracking and feature management
+# ============================================================================
+entity:
+  # Entity model root (uses shared models_root)
+  models_dir: "${paths.models_root}/entity"
+
+  # Video preprocessing
+  sample_fps: 5.0          # frames per second
+  video_max_size: 640      # longest side
+  device: "cuda"           # "cuda" or "cpu"
+
+  # Grounded-SAM-2
+  grounded_sam2:
+    # SAM2 checkpoint (relative to models_dir)
+    sam2_checkpoint: "sam2/sam2_hiera_large.pt"
+    # SAM2 config (relative to the sam2 package configs dir; Hydra search path is pkg://sam2)
+    sam2_config: "configs/sam2/sam2_hiera_l.yaml"
+    # Grounding DINO checkpoint (relative to models_dir)
+    grounding_model: "grounding-dino-tiny"
+    # Use only local model files (no online download / verification)
+    local_files_only: true
+    detection_threshold: 0.5
+    text_threshold: 0.6
+    # Multi-frame detection retry
+    max_detection_retry_frames: 10  # if first frame fails, try up to N more
+    # Time buffers (seconds)
+    first_appearance_buffer: 0.5  # buffer before first appearance
+    segment_buffer: 0.2  # buffer at start/end of each interaction segment for stability
+
+  # Models
+  models:
+    # CLIP
+    clip:
+      model_name: "ViT-B/32"
+      model_path: "clip"  # relative to models_dir
+      use_local: true
+      device: "cuda"
+      use_fp16: true
+
+    # DINOv2
+    dinov2:
+      model_name: "dinov2_vitb14"  # options: dinov2_vits14 / vitb14 / vitl14 / vitg14
+      model_path: "facebookresearch/dinov2"
+      local_dir: "${paths.models_root}/entity"
+      use_local: false
+      device: "cuda"
+      use_fp16: true
+
+    # Sentence-BERT
+    sentence_bert:
+      model_name: "all-MiniLM-L6-v2"
+      model_path: "all-MiniLM-L6-v2"
+      local_dir: "${paths.models_root}"
+      use_local: true
+      device: "cuda"
+
+  # Feature extraction
+  feature:
+    device: "cuda"
+    max_frames: 5  # number of best frames per object
+    use_fp16: false
+    selection_strategy: "uniform"  # "uniform" or "high_confidence"
+    enable_extraction: true
+    recent_event_count: 5  # global object keeps mean feature over the last N events
+
+  # Global matching
+  global_matching:
+    enabled: true
+
+    # Reset the global entity DB at the start of a batch run
+    # true: rebuild the global DB from scratch every run
+    # false: keep existing global DB and match new events against history
+    reset_global_entities: true
+
+    # Stage 1: text-to-text
+    text2text:
+      text_model: "sentence_bert"
+      threshold: 0.4  # only keep candidates above this similarity
+      global_desc_count: 5  # use the most recent N descriptions
+      top_k: 3  # average over top-K matches
+
+    # Stage 2: vision-to-vision
+    vision2vision:
+      vision_model: "clip"
+      top_k: 10  # average over top-K matches
+      method: "iou"  # "iou" (IoU based) or "vl_model" (VL-model based)
+      num_sample_frames: 15  # for IoU method
+      max_crops_per_side: 3  # for vl_model method
+
+    # Common
+    match_threshold: 0.5  # weighted total score must be >= this
+    min_confidence: 0.5  # reserved for future use
+
+    # EMA update
+    ema_alpha: 0.7  # new-feature weight
+    max_history_events: 5  # number of recent events to keep in history
+
+    # Global object DB paths
+    global_objects_dir: "${paths.entities_dir}/overall"
+    global_features_dir: "${paths.features_dir}/objects/global"
+
+  # Output
+  output:
+    event_entities_dir: "${paths.entities_dir}/event"
+    global_entities_path: "${paths.entities_dir}/global_entities.json"
+    event_features_dir: "${paths.features_dir}/event"
+    global_features_dir: "${paths.features_dir}/global"
+
+# Batch processing
+processing:
+  batch_size: 5
+  save_intermediate: false
+  verbose: true
+  base_date: "2025-01-01"  # base date used to convert timestamps to datetimes
+
+# ============================================================================
+# Entity tracking
+# ============================================================================
+entity_tracking:
+  # Grounded DINO
+  grounding_dino:
+    model_id: "models/entity/grounding-dino-tiny"  # local model
+    box_threshold: 0.5
+    text_threshold: 0.7
+
+  # SAM 2
+  sam2:
+    checkpoint: "models/entity/sam2/sam2_hiera_large.pt"
+    model_cfg: "configs/sam2/sam2_hiera_l.yaml"  # SAM2 config file
+
+  # Initial-frame detection
+  initial_detection:
+    n_frames: 15           # frames to sample
+    max_crop_images: 3     # save top-K highest-scoring crops
+
+  # Video processing
+  video_processing:
+    resize_max_size: 640  # longest side
+    sample_fps: 3.0
+
+  # Output
+  output:
+    entities_dir: "${paths.entities_dir}/event"
+    crops_dir: "${paths.entities_dir}/crops"
+    vis_dir: "${paths.entities_dir}/visualizations"

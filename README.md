@@ -15,9 +15,8 @@ raw egocentric video into a queryable, personalized memory:
 - **`memory/`** — auto-annotation pipeline on each video clip
   (ASR, captioning, object tracking, voiceprint, event-relation reasoning),
   maintaining a cross-clip global memory of speakers, objects, and events.
-- **`event_graph/`** — ingests `memory/` event JSONs into a Neo4j graph,
-  computes embeddings, clusters events, and runs retrieval-based evaluations
-  for downstream personalized QA.
+- **`event_graph/`** — converts `memory/` event JSONs into a Neo4j graph,
+  computes embeddings, clusters events, and runs retrieval-based evaluations.
 
 ---
 
@@ -25,19 +24,17 @@ raw egocentric video into a queryable, personalized memory:
 
 ```
 egoself/
-├── memory/             # video → event JSON pipeline (was personalization/)
-│   ├── scripts/        # run_video_dir.py, run_single_video.py, visualize_*
+├── memory/             # video → event JSON pipeline
+│   ├── scripts/        # run_video_dir.py, run_single_video.py
 │   ├── src/            # asr, caption, entity, voiceprint, relation
-│   ├── configs/        # config.yaml + per-day overrides
-│   ├── submodules/     # Grounded-SAM-2, whisperX, pyannote-audio
-│   └── models/         # local model weights (download separately)
-├── event_graph/        # event JSON → Neo4j graph + retrieval eval
-│   ├── event_graph/    # neo4j_client, embedding_extractor, clusterer, retriever
 │   ├── configs/        # config.yaml
-│   └── scripts/        # build_graph_from_json, initialize_neo4j, build_clusters,
-│                       # evaluate_retrieval_accuracy, ...
-├── requirements/       # base.txt, memory.txt, event_graph.txt, torch.txt
-├── setup.sh            # one-shot env install
+│   └── submodules/     # Grounded-SAM-2, whisperX, pyannote-audio
+├── event_graph/        # event JSON → Neo4j graph
+│   ├── event_graph/    # build event graph 
+│   ├── configs/        # config.yaml
+│   └── scripts/        # event graph scripts
+├── requirements/       # install requirements
+├── setup.sh            # env install
 └── README.md           # this file
 ```
 
@@ -62,7 +59,6 @@ API Placeholder strings that you replace with your own credentials:
 Files to edit (do a find-and-replace for each placeholder):
 
 - `memory/configs/config.yaml` — main memory pipeline config
-- `memory/configs/config_day1.yaml` … `config_day7.yaml` — per-day overrides (only edit the ones you actually run)
 - `event_graph/configs/config.yaml` — embedding + LLM keys for the graph module
 
 ---
@@ -103,18 +99,6 @@ python event_graph/scripts/build_graph_from_json.py \
 
 See `event_graph/README.md` for detailed instructions.
 
-<!--
-## Known constraints
-
-- **EgoGPT training** uses `torch==2.1.2`; this env is `torch==2.5.1`. EgoGPT
-  inference is the supported use case here. For training, use the env defined
-  by `../EgoLife/EgoGPT/pyproject.toml` separately.
-- **Neo4j credentials** in `setup.sh` are the demo defaults
-  (`neo4j/password`). Change before any non-local use.
-- Some `memory/configs/config_day*.yaml` files have absolute paths under
-  `/home/li325/tta_y/projects/egoself/memory/`; on a different host either
-  symlink that path or `sed` the configs.
--->
 
 ---
 

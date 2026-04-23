@@ -1,0 +1,15 @@
+# ============================================================================
+# event_graph dependencies
+# ----------------------------------------------------------------------------
+# Requires Neo4j (recommend Docker) + an OpenAI API key for embeddings.
+# scikit-learn / numpy / pyyaml / tqdm / openai / matplotlib are already
+# satisfied by memory.txt - listed here for clarity / standalone install.
+# ============================================================================
+
+neo4j>=5.0
+hdbscan==0.8.40
+networkx>=3.0
+openai>=1.0
+matplotlib
+pyyaml
+tqdm

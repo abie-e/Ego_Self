@@ -1,0 +1,248 @@
+# ============================================================================
+# Memory pipeline - Python dependencies
+# ============================================================================
+#
+# Install order:
+# 1. Install PyTorch first (pick the wheel for your CUDA version):
+#    pip install torch==2.5.1 torchvision==0.20.1 torchaudio==2.5.1 --index-url https://download.pytorch.org/whl/cu121
+#
+# 2. Install the deps in this file:
+#    pip install -r requirements/memory.txt
+#
+# 3. Install the git submodules (Grounded-SAM-2, etc.) - see README.md
+#
+# ============================================================================
+
+# ----------------------------------------------------------------------------
+# Core deep-learning stack
+# ----------------------------------------------------------------------------
+# PyTorch (install separately, see header)
+# torch==2.5.1
+# torchvision==0.20.1
+# torchaudio==2.5.1
+
+# PyTorch Lightning
+pytorch-lightning==2.1.4
+lightning==2.1.4
+lightning-utilities==0.10.1
+torchmetrics==1.2.1
+
+# ----------------------------------------------------------------------------
+# Video and image processing
+# ----------------------------------------------------------------------------
+opencv-python==4.10.0.84
+moviepy==2.2.1
+imageio==2.37.0
+imageio-ffmpeg==0.6.0
+decord==0.6.0
+av==15.1.0
+pillow>=10.0.0
+
+# ----------------------------------------------------------------------------
+# Speech / audio
+# ----------------------------------------------------------------------------
+# ASR
+faster-whisper==1.2.1
+soundfile==0.13.1
+pydub==0.25.1
+
+# Speaker diarization / voiceprint
+pyannote.audio==3.4.0
+pyannote.core==5.0.0
+pyannote.database==5.1.3
+pyannote.metrics==3.2.1
+pyannote.pipeline==3.0.1
+speechbrain==1.0.3
+
+# Audio augmentation / DSP
+torch-audiomentations==0.12.0
+torch_pitch_shift==1.2.5
+julius==0.2.7
+asteroid-filterbanks==0.4.0
+
+# ----------------------------------------------------------------------------
+# API clients
+# ----------------------------------------------------------------------------
+openai==2.6.1
+httpx==0.28.1
+httpcore==1.0.9
+h11==0.16.0
+
+# ----------------------------------------------------------------------------
+# Feature extraction and models
+# ----------------------------------------------------------------------------
+sentence-transformers==3.2.1
+transformers==4.45.2
+tokenizers==0.20.1
+safetensors==0.4.5
+huggingface-hub==0.25.2
+
+# CLIP (install from GitHub)
+# pip install git+https://github.com/openai/CLIP.git
+
+# ----------------------------------------------------------------------------
+# Detection and segmentation
+# ----------------------------------------------------------------------------
+# Grounding DINO and SAM2 are installed from git submodules - see README.md
+supervision==0.26.1
+ultralytics==8.3.200
+ultralytics-thop==2.0.17
+
+# Tracking
+# boxmot is installed from a git submodule
+filterpy==1.4.5
+lapx==0.7.1
+
+# ----------------------------------------------------------------------------
+# Scientific computing
+# ----------------------------------------------------------------------------
+numpy==1.26.4
+scipy==1.13.1
+pandas==2.3.3
+scikit-learn==1.2.2
+polars==1.33.1
+
+# ----------------------------------------------------------------------------
+# Configuration and data handling
+# ----------------------------------------------------------------------------
+pyyaml>=6.0
+omegaconf==2.3.0
+hydra-core==1.3.2
+HyperPyYAML==1.2.2
+python-dotenv==1.2.1
+
+# ----------------------------------------------------------------------------
+# Utilities
+# ----------------------------------------------------------------------------
+tqdm==4.67.1
+click==8.1.8
+typer==0.20.0
+rich==14.2.0
+colorlog==6.10.1
+coloredlogs==15.0.1
+loguru==0.7.3
+termcolor==3.1.0
+
+# File handling
+filelock>=3.0.0
+fsspec==2024.12.0
+portalocker==3.2.0
+
+# Misc
+joblib==1.5.2
+tabulate==0.9.0
+terminaltables==3.1.10
+wcwidth==0.2.14
+
+# ----------------------------------------------------------------------------
+# Networking / HTTP
+# ----------------------------------------------------------------------------
+requests>=2.31.0
+urllib3>=2.0.0
+certifi>=2024.0.0
+aiohttp==3.13.2
+aiohappyeyeballs==2.6.1
+aiosignal==1.4.0
+async-timeout==5.0.1
+frozenlist==1.8.0
+multidict==6.7.0
+yarl==1.22.0
+propcache==0.4.1
+
+# ----------------------------------------------------------------------------
+# Database / storage
+# ----------------------------------------------------------------------------
+SQLAlchemy==2.0.44
+alembic==1.16.5
+greenlet==3.2.4
+
+# ----------------------------------------------------------------------------
+# Visualization
+# ----------------------------------------------------------------------------
+matplotlib==3.9.4
+seaborn==0.13.2
+mplcursors==0.7
+
+# ----------------------------------------------------------------------------
+# NLP / text processing
+# ----------------------------------------------------------------------------
+nltk==3.9.2
+regex==2024.11.6
+sentencepiece==0.1.99
+ftfy==6.3.1
+
+# ----------------------------------------------------------------------------
+# Other dependencies
+# ----------------------------------------------------------------------------
+einops==0.6.1
+timm==0.6.13
+fvcore==0.1.5.post20221221
+iopath==0.1.10
+yacs==0.1.8
+
+# Protobuf
+protobuf==6.33.0
+
+# Typing
+typing-extensions>=4.0.0
+typing-inspection==0.4.2
+pydantic==2.12.3
+pydantic_core==2.41.4
+
+# Misc runtime
+python-dateutil==2.9.0.post0
+pytz==2025.2
+tzdata==2025.2
+six==1.17.0
+decorator==5.2.1
+cloudpickle==3.1.1
+sortedcontainers==2.4.0
+packaging==24.2
+setuptools==70.0.0
+wheel==0.43.0
+
+# ----------------------------------------------------------------------------
+# Optional (uncomment as needed)
+# ----------------------------------------------------------------------------
+# Jupyter / notebook support
+# jupyter>=1.0.0
+# ipython>=8.0.0
+# notebook>=7.0.0
+
+# Profiling
+# psutil==7.0.0
+# gpustat>=1.0.0
+
+# Distributed training
+# submitit==1.5.3
+
+# ============================================================================
+# Special install notes
+# ============================================================================
+#
+# The following packages need a special install path and are not in this file:
+#
+# 1. PyTorch (torch, torchvision, torchaudio)
+#    Pick the wheel matching your CUDA version: https://pytorch.org/
+#
+# 2. CLIP
+#    pip install git+https://github.com/openai/CLIP.git
+#
+# 3. Grounded-SAM-2 (includes Grounding DINO and SAM2)
+#    cd submodules/Grounded-SAM-2
+#    pip install -e grounding_dino
+#    pip install -e .
+#
+# 4. WhisperX (only if you use WhisperX for ASR)
+#    cd submodules/whisperX
+#    pip install -e .
+#
+# 5. boxmot (object tracking)
+#    cd submodules/boxmot
+#    pip install -e .
+#
+# 6. DINOv2 (only if you use DINOv2 features)
+#    cd submodules/dinov2
+#    pip install -e .
+#
+# ============================================================================

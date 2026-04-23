@@ -1,0 +1,27 @@
+# Event Graph Configuration
+
+# API Configuration
+api:
+  # Text Embedding API
+  embedding:
+    api_key: "YOUR_API_KEY_HERE"
+    model: "gemini-embedding-001"
+    embedding_dim: 3072
+
+  # LLM for query intent analysis
+  llm:
+    base_url: "https://api.openai.com/v1/"
+    api_key: "YOUR_OPENAI_API_KEY_HERE"
+    model: "gpt-5-nano"
+
+# Neo4j Configuration
+neo4j:
+  uri: "bolt://localhost:7687"
+  user: "neo4j"
+  password: "password"
+
+# Retrieval Configuration
+retrieval:
+  top_k: 6  # Number of top similar nodes to retrieve per type
+  min_similarity: 0.0  # Minimum similarity threshold
+  max_events_from_entities: 2  # Maximum events to retrieve through entity path
