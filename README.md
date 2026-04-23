@@ -4,7 +4,7 @@
 
 <p align="center">
     <a href="https://arxiv.org/abs/2604.19564"><img src="https://img.shields.io/badge/ArXiv-2604.19564-brightgreen"></a>
-    <a href="https://abie-e.github.io/EgoSelf/"><img src="https://img.shields.io/badge/Project-EgoSelf-purple"></a>
+    <a href="https://abie-e.github.io/EgoSelf/"><img src="https://img.shields.io/badge/Project-Page-purple"></a>
 </p>
 
 <img src="assets/method_short.png" alt="EgoSelf method overview" width="720"/>
