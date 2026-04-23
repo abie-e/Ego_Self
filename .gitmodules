@@ -1,0 +1,15 @@
+[submodule "memory/submodules/Grounded-SAM-2"]
+	path = memory/submodules/Grounded-SAM-2
+	url = https://github.com/IDEA-Research/Grounded-SAM-2
+[submodule "memory/submodules/sam2"]
+	path = memory/submodules/sam2
+	url = https://github.com/facebookresearch/sam2.git
+[submodule "memory/submodules/pyannote-audio"]
+	path = memory/submodules/pyannote-audio
+	url = https://github.com/pyannote/pyannote-audio.git
+[submodule "memory/submodules/whisperX"]
+	path = memory/submodules/whisperX
+	url = https://github.com/m-bain/whisperX.git
+[submodule "memory/submodules/dinov2"]
+	path = memory/submodules/dinov2
+	url = https://github.com/facebookresearch/dinov2.git
